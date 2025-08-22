@@ -55,7 +55,7 @@ Ahora, por favor, genera la interpretación completa usando ESTRICTAMENTE los si
 
 Formatea toda tu respuesta con el markdown de WhatsApp (*negritas* y _cursivas_).`;
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
         
         // Chivato 5: Llamando a la API de Gemini
         console.log("Calling Gemini API...");
