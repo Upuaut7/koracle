@@ -1,0 +1,6 @@
+[build]
+  command = "echo 'Building site...'" # Este comando simple fuerza a Netlify a construir
+  functions = "netlify/functions/"
+
+[functions]
+  directory = "netlify/functions/"

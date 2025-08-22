@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receptor de Mensajes desde el Alma</title>
+    <!-- El CSS es el mismo que en la versión anterior -->
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; margin: 20px; background-color: #f0f2f5; color: #1c1e21; display: flex; flex-direction: column; align-items: center; }
+        .container { background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); width: 95%; max-width: 700px; text-align: center; margin-bottom: 30px;}
+        h1, h2, h3 { color: #5a4a9f; font-weight: 600; }
+        label { display: block; margin-bottom: 10px; font-weight: 600; color: #606770; text-align: left; }
+        input, textarea { width: calc(100% - 24px); padding: 12px; margin-bottom: 20px; border: 1px solid #dddfe2; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        button { background-color: #7b68ee; color: white; padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background-color 0.3s ease, transform 0.1s ease; margin-top: 10px; }
+        button:hover { background-color: #6a5acd; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        .interpretation-area { margin-top: 30px; text-align: left; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #7b68ee; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .interpretation-content { white-space: pre-wrap; font-family: sans-serif; background-color: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee; }
+        .interpretation-content b { color: #5a4a9f; }
+        .interpretation-content i { color: #333; }
+        .error-message { color: #d93025; font-weight: bold; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Receptor de Mensajes desde el Alma</h1>
+        
+        <label for="userQuestion">1. Escribe tu pregunta o intención:</label>
+        <input type="text" id="userQuestion" placeholder="Ej: ¿Cuál es mi propósito ahora?">
+
+        <label for="bornNumber">2. Deja "nacer" un número y escríbelo aquí:</label>
+        <input type="text" id="bornNumber" placeholder="Ej: 13280268">
+
+        <button id="generateButton" onclick="getInterpretation()">Obtener Interpretación</button>
+
+        <div class="spinner" id="loadingSpinner"></div>
+
+        <div class="interpretation-area" id="interpretationArea" style="display:none;">
+            <h2>Interpretación de tu Mensaje</h2>
+            <div id="synthesisArea" class="interpretation-content"></div>
+            <button id="showExtendedButton" onclick="showExtended()" style="display:none; margin-top:20px;">Ver Mensaje Extendido</button>
+            <div id="extendedArea" class="interpretation-content" style="display:none; margin-top:20px;"></div>
+            <div id="errorArea" class="error-message" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        function mulberry32(seed) { /* ... (código del generador PRNG, sin cambios) ... */
+            return function() {
+              var t = seed += 0x6D2B79F5;
+              t = Math.imul(t ^ t >>> 15, t | 1);
+              t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+              return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            }
+        }
+
+        async function getInterpretation() {
+            const question = document.getElementById('userQuestion').value;
+            const bornNumberInput = document.getElementById('bornNumber').value;
+            if (!bornNumberInput || !question) {
+                alert("Por favor, completa ambos campos: tu intención y tu número.");
+                return;
+            }
+            const bornNumber = parseInt(bornNumberInput.replace(/[,.]/g, ''));
+            if (isNaN(bornNumber) || bornNumber <= 0) {
+                alert("Por favor, introduce un número válido y positivo.");
+                return;
+            }
+
+            const generateButton = document.getElementById('generateButton');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const interpretationArea = document.getElementById('interpretationArea');
+            const errorArea = document.getElementById('errorArea');
+
+            generateButton.disabled = true;
+            loadingSpinner.style.display = 'block';
+            interpretationArea.style.display = 'none';
+            errorArea.style.display = 'none';
+
+            // --- 1. Cálculo Local ---
+            let seed = bornNumber > 2147483647 ? bornNumber % 2147483647 : bornNumber;
+            if (seed === 0) seed = 1;
+            const rng = mulberry32(seed);
+            const numSpins = 1000000;
+            const frequencies = {};
+            for (let i = 0; i < 37; i++) { frequencies[i] = 0; }
+            for (let i = 0; i < numSpins; i++) {
+                frequencies[Math.floor(rng() * 37)]++;
+            }
+            const sortedFrequencies = Object.entries(frequencies).sort(([, a], [, b]) => a - b);
+            const leastFrequent = sortedFrequencies.slice(0, 3).map(item => item[0]);
+            const mostFrequent = sortedFrequencies.slice(-3).reverse().map(item => item[0]);
+
+            // --- 2. Llamada al Intermediario (Función Serverless) ---
+            try {
+                const response = await fetch('/.netlify/functions/getInterpretation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question: question,
+                        mostFrequent: mostFrequent,
+                        leastFrequent: leastFrequent
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                displayInterpretation(data.interpretation);
+
+            } catch (error) {
+                errorArea.textContent = `Ha ocurrido un error al contactar al oráculo. Por favor, inténtalo de nuevo más tarde. (Detalle: ${error.message})`;
+                errorArea.style.display = 'block';
+            } finally {
+                generateButton.disabled = false;
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        function displayInterpretation(fullResponse) {
+            if (!fullResponse.includes('### SÍNTESIS ###') || !fullResponse.includes('### DESGLOSE ###') || !fullResponse.includes('### CONCLUSIÓN ###')) {
+                document.getElementById('errorArea').textContent = "La respuesta de la IA no tiene el formato esperado. No se puede mostrar.";
+                document.getElementById('errorArea').style.display = 'block';
+                return;
+            }
+            
+            const synthesisPart = fullResponse.split('### SÍNTESIS ###')[1].split('### DESGLOSE ###')[0].trim();
+            const extendedPart = fullResponse.split('### DESGLOSE ###')[1].split('### CONCLUSIÓN ###')[0].trim();
+            const conclusionPart = fullResponse.split('### CONCLUSIÓN ###')[1].trim();
+            
+            function formatWhatsappToHtml(text) { return text.replace(/\*([^\*]+)\*/g, '<b>$1</b>').replace(/_([^_]+)_/g, '<i>$1</i>').replace(/\n/g, '<br>'); }
+
+            document.getElementById('synthesisArea').innerHTML = `<p>${formatWhatsappToHtml(synthesisPart)}</p><br><h3>Conclusión Final:</h3><p><i>${formatWhatsappToHtml(conclusionPart)}</i></p>`;
+            document.getElementById('extendedArea').innerHTML = formatWhatsappToHtml(extendedPart);
+            
+            document.getElementById('extendedArea').style.display = 'none';
+            document.getElementById('showExtendedButton').style.display = 'inline-block';
+            document.getElementById('interpretationArea').style.display = 'block';
+        }
+
+        function showExtended() {
+            document.getElementById('extendedArea').style.display = 'block';
+            document.getElementById('showExtendedButton').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
