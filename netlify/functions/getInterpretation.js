@@ -3,23 +3,38 @@
 // Importar una librería para hacer llamadas a la API (Netlify la instala automáticamente)
 const fetch = require('node-fetch');
 
-// La función principal que Netlify ejecutará
 exports.handler = async function(event, context) {
-    // 1. Obtener los datos enviados desde la página HTML
-    const { question, mostFrequent, leastFrequent } = JSON.parse(event.body);
+    // Chivato 1: La función ha empezado
+    console.log("Function invoked. HTTP Method:", event.httpMethod);
 
-    // 2. Obtener tu clave de API de Gemini desde las variables de entorno seguras de Netlify
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
-    if (!GEMINI_API_KEY) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: "La clave de API no está configurada en el servidor." })
-        };
+    if (event.httpMethod !== 'POST') {
+        return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
-    // 3. Construir el prompt para Gemini
-    const prompt = `Actúa como un guía espiritual sabio y cálido, experto en simbolismo cabalístico (Gematría). Un usuario ha realizado una consulta a un oráculo numérico y necesita tu interpretación.
+    try {
+        // Chivato 2: ¿Qué hay en el body?
+        console.log("Request body received:", event.body);
+        
+        if (!event.body) {
+            throw new Error("Request body is empty.");
+        }
+
+        const { question, mostFrequent, leastFrequent } = JSON.parse(event.body);
+        
+        // Chivato 3: Datos parseados correctamente
+        console.log("Parsed data:", { question, mostFrequent, leastFrequent });
+        
+        const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+        if (!GEMINI_API_KEY) {
+            console.error("CRITICAL: GEMINI_API_KEY is not configured in Netlify.");
+            throw new Error("API key not configured.");
+        }
+
+        // Chivato 4: La clave de API fue encontrada
+        console.log("GEMINI_API_KEY found. Preparing prompt.");
+
+        const prompt = `Actúa como un guía espiritual sabio y cálido, experto en simbolismo cabalístico (Gematría). Un usuario ha realizado una consulta a un oráculo numérico y necesita tu interpretación.
 
 La intención del usuario es: "${question}"
 
@@ -40,10 +55,11 @@ Ahora, por favor, genera la interpretación completa usando ESTRICTAMENTE los si
 
 Formatea toda tu respuesta con el markdown de WhatsApp (*negritas* y _cursivas_).`;
 
-    // 4. Hacer la llamada segura a la API de Gemini
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
-    
-    try {
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+        
+        // Chivato 5: Llamando a la API de Gemini
+        console.log("Calling Gemini API...");
+        
         const geminiResponse = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -51,27 +67,39 @@ Formatea toda tu respuesta con el markdown de WhatsApp (*negritas* y _cursivas_)
                 contents: [{ parts: [{ text: prompt }] }]
             })
         });
+        
+        // Chivato 6: Respuesta recibida de Gemini
+        console.log("Gemini API response status:", geminiResponse.status);
 
         if (!geminiResponse.ok) {
             const errorBody = await geminiResponse.text();
-            console.error("Error de la API de Gemini:", errorBody);
-            throw new Error(`La API de Gemini respondió con un error: ${geminiResponse.statusText}`);
+            console.error("Gemini API Error Body:", errorBody);
+            throw new Error(`Gemini API responded with status: ${geminiResponse.status}`);
         }
 
         const geminiData = await geminiResponse.json();
+        
+        if (!geminiData.candidates || geminiData.candidates.length === 0) {
+             console.error("Gemini response blocked or empty:", geminiData);
+             throw new Error("La respuesta de la API de Gemini no contiene candidatos. Puede haber sido bloqueada por seguridad.");
+        }
+        
         const interpretation = geminiData.candidates[0].content.parts[0].text;
 
-        // 5. Devolver la interpretación a la página HTML
+        // Chivato 7: Éxito
+        console.log("Successfully returning interpretation to client.");
+
         return {
             statusCode: 200,
             body: JSON.stringify({ interpretation: interpretation })
         };
 
     } catch (error) {
-        console.error("Error en la función serverless:", error);
+        // Chivato 8: Error capturado
+        console.error("CRITICAL ERROR in function handler:", error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: `Hubo un problema al procesar la solicitud: ${error.message}` })
+            body: JSON.stringify({ error: error.message })
         };
     }
 };
