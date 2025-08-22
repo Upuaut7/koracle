@@ -1,6 +1,7 @@
 [build]
-  command = "echo 'Building site...'" # Este comando simple fuerza a Netlify a construir
-  functions = "netlify/functions/"
+  command = "echo 'Building site...'"
 
 [functions]
   directory = "netlify/functions/"
+  # --- LÍNEA NUEVA Y CRUCIAL ---
+  node_bundler = "esbuild"
