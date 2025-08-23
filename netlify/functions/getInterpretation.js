@@ -1,7 +1,7 @@
 // Este código se ejecuta en los servidores de Netlify, no en el navegador del usuario.
 
 // Importar una librería para hacer llamadas a la API (Netlify la instala automáticamente)
-const fetch = require('node-fetch');
+// const fetch = require('node-fetch');
 
 exports.handler = async function(event, context) {
     // Chivato 1: La función ha empezado
