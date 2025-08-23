@@ -3,50 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receptor de Mensajes desde el Alma</title>
-    <!-- El CSS es el mismo que en la versión anterior -->
+    <title>Portal Oracular del Alma</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; margin: 20px; background-color: #f0f2f5; color: #1c1e21; display: flex; flex-direction: column; align-items: center; }
-        .container { background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); width: 95%; max-width: 700px; text-align: center; margin-bottom: 30px;}
-        h1, h2, h3 { color: #5a4a9f; font-weight: 600; }
-        label { display: block; margin-bottom: 10px; font-weight: 600; color: #606770; text-align: left; }
-        input, textarea { width: calc(100% - 24px); padding: 12px; margin-bottom: 20px; border: 1px solid #dddfe2; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-        button { background-color: #7b68ee; color: white; padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background-color 0.3s ease, transform 0.1s ease; margin-top: 10px; }
-        button:hover { background-color: #6a5acd; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; background: linear-gradient(45deg, #1a1a1a, #2c003e); color: #fff; min-height: 100vh; padding: 20px; text-align: center; margin: 0; }
+        .container { max-width: 800px; width: 90%; margin: 0 auto; }
+        h1, h2, h3 { color: #d4af37; /* Tono dorado */ font-weight: 600; }
+        button { background: #4B0082; color: white; border: none; padding: 12px 25px; margin: 10px; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #6A0DAD; transform: scale(1.05); }
         button:disabled { background-color: #ccc; cursor: not-allowed; }
-        .interpretation-area { margin-top: 30px; text-align: left; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #7b68ee; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
+        .oracle-choice { background: rgba(0,0,0,0.3); padding: 30px; border-radius: 12px; margin: 20px 0; border: 1px solid #4B0082; }
+        .oracle-app { display: none; /* Ocultos por defecto */ }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #d4af37; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .interpretation-content { white-space: pre-wrap; font-family: sans-serif; background-color: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee; }
-        .interpretation-content b { color: #5a4a9f; }
-        .interpretation-content i { color: #333; }
-        .error-message { color: #d93025; font-weight: bold; margin-top: 15px; }
+        .interpretation-content { white-space: pre-wrap; text-align: left; font-family: sans-serif; background-color: rgba(0,0,0,0.5); padding: 20px; border-radius: 8px; border: 1px solid #d4af37; margin-top: 20px; }
+        .interpretation-content b { color: #d4af37; }
+        .error-message { color: #ff4d4d; font-weight: bold; margin-top: 15px; }
+        /* Estilos específicos del Tarot */
+        .carta { width: 120px; height: 180px; border-radius: 10px; border: 2px solid #d4af37; display: flex; flex-direction: column; align-items: center; justify-content: center; background-size: cover; font-size: 0.8rem; padding: 5px; box-sizing: border-box; }
+        .carta.boca-abajo { background: linear-gradient(45deg, #2c003e, #4B0082); color: transparent; }
+        #mazo, #cartas-sacadas { display: flex; justify-content: center; gap: 15px; margin: 20px 0; flex-wrap: wrap; }
+        #conversacion textarea { width: 95%; margin: 0.5rem; background: #333; color: #fff; border: 1px solid #d4af37; border-radius: 5px; padding: 10px;}
+        /* Estilos específicos del Receptor Numérico */
+        .numeric-input { width: calc(100% - 24px); padding: 12px; margin-bottom: 20px; border: 1px solid #dddfe2; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        .step { border-top: 2px dashed #4B0082; margin-top: 30px; padding-top: 20px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Receptor de Mensajes desde el Alma</h1>
-        
-        <label for="userQuestion">1. Escribe tu pregunta o intención:</label>
-        <input type="text" id="userQuestion" placeholder="Ej: ¿Cuál es mi propósito ahora?">
+        <h1>Portal Oracular del Alma</h1>
 
-        <label for="bornNumber">2. Deja "nacer" un número y escríbelo aquí:</label>
-        <input type="text" id="bornNumber" placeholder="Ej: 13280268">
+        <!-- SECCIÓN DE BIENVENIDA / HUB PRINCIPAL -->
+        <div id="welcomeHub">
+            <div class="oracle-choice">
+                <h2>Receptor Numérico</h2>
+                <p>Usa un número nacido de tu intuición para recibir un mensaje de tu Alma, Cuerpo y la Fuerza Creadora.</p>
+                <button onclick="showOracle('numeric')">Entrar al Receptor</button>
+            </div>
+            <div class="oracle-choice">
+                <h2>Tarot de la Ley del Uno</h2>
+                <p>Realiza una tirada de 3 cartas basada en los arquetipos de la Mente, el Cuerpo y el Espíritu.</p>
+                <button onclick="showOracle('tarot')">Entrar al Tarot</button>
+            </div>
+        </div>
 
-        <button id="generateButton" onclick="getInterpretation()">Obtener Interpretación</button>
+        <!-- APLICACIÓN DEL RECEPTOR NUMÉRICO (Oculta) -->
+        <div id="numericOracle" class="oracle-app">
+            <button onclick="showHub()">← Volver al Portal</button>
+            <h2>Receptor de Mensajes desde el Alma</h2>
+            <div class="step">
+                <label for="userQuestionNumeric">1. Escribe tu pregunta o intención:</label>
+                <input type="text" id="userQuestionNumeric" class="numeric-input" placeholder="Ej: ¿Cuál es mi propósito ahora?">
+                <label for="bornNumber">2. Deja "nacer" un número y escríbelo aquí:</label>
+                <input type="text" id="bornNumber" class="numeric-input" placeholder="Ej: 13280268">
+                <button id="generateButtonNumeric" onclick="getNumericInterpretation()">Obtener Interpretación</button>
+            </div>
+            <div class="spinner" id="loadingSpinnerNumeric"></div>
+            <div id="interpretationAreaNumeric" style="display:none;">
+                <h3>Interpretación de tu Mensaje</h3>
+                <div id="synthesisAreaNumeric" class="interpretation-content"></div>
+                <button id="showExtendedButtonNumeric" onclick="showExtendedNumeric()" style="display:none; margin-top:20px;">Ver Mensaje Extendido</button>
+                <div id="extendedAreaNumeric" class="interpretation-content" style="display:none; margin-top:20px;"></div>
+                <div id="errorAreaNumeric" class="error-message" style="display:none;"></div>
+            </div>
+        </div>
 
-        <div class="spinner" id="loadingSpinner"></div>
-
-        <div class="interpretation-area" id="interpretationArea" style="display:none;">
-            <h2>Interpretación de tu Mensaje</h2>
-            <div id="synthesisArea" class="interpretation-content"></div>
-            <button id="showExtendedButton" onclick="showExtended()" style="display:none; margin-top:20px;">Ver Mensaje Extendido</button>
-            <div id="extendedArea" class="interpretation-content" style="display:none; margin-top:20px;"></div>
-            <div id="errorArea" class="error-message" style="display:none;"></div>
+        <!-- APLICACIÓN DEL TAROT DE LA LEY DEL UNO (Oculta) -->
+        <div id="tarotOracle" class="oracle-app">
+            <button onclick="showHub()">← Volver al Portal</button>
+            <h2>Tarot de la Ley del Uno</h2>
+            <div class="botones">
+                <button onclick="iniciarTirada()">Iniciar Tirada</button>
+                <button onclick="barajar()" id="btnBarajar" disabled>Barajar</button>
+                <button onclick="sacarCartas()" id="btnSacar" disabled>Sacar Cartas</button>
+            </div>
+            <p id="mensajeTarot"></p>
+            <div id="pregunta-consultante"></div>
+            <div id="mazo"></div>
+            <div id="cartas-sacadas"></div>
+            <div class="spinner" id="loadingSpinnerTarot"></div>
+            <div id="interpretationAreaTarot" class="interpretation-content" style="display:none;"></div>
+            <div id="conversacion" style="display:none;">
+                <textarea id="entrada-usuario" rows="4" placeholder="Profundiza en la lectura o haz otra pregunta..."></textarea><br>
+                <button onclick="enviarPreguntaUsuario()">Enviar</button>
+            </div>
         </div>
     </div>
 
     <script>
+        // --- LÓGICA DE NAVEGACIÓN PRINCIPAL ---
+        const welcomeHub = document.getElementById('welcomeHub');
+        const numericOracle = document.getElementById('numericOracle');
+        const tarotOracle = document.getElementById('tarotOracle');
+
+        function showOracle(oracleName) {
+            welcomeHub.style.display = 'none';
+            if (oracleName === 'numeric') {
+                numericOracle.style.display = 'block';
+            } else if (oracleName === 'tarot') {
+                tarotOracle.style.display = 'block';
+            }
+        }
+        function showHub() {
+            welcomeHub.style.display = 'block';
+            numericOracle.style.display = 'none';
+            tarotOracle.style.display = 'none';
+        }
+
+        // --- LÓGICA DEL RECEPTOR NUMÉRICO ---
         function mulberry32(seed) { /* ... (código del generador PRNG, sin cambios) ... */
             return function() {
               var t = seed += 0x6D2B79F5;
@@ -55,96 +118,200 @@
               return ((t ^ t >>> 14) >>> 0) / 4294967296;
             }
         }
-
-        async function getInterpretation() {
-            const question = document.getElementById('userQuestion').value;
+        async function getNumericInterpretation() {
+            const question = document.getElementById('userQuestionNumeric').value;
             const bornNumberInput = document.getElementById('bornNumber').value;
-            if (!bornNumberInput || !question) {
-                alert("Por favor, completa ambos campos: tu intención y tu número.");
-                return;
-            }
+            if (!bornNumberInput || !question) { alert("Por favor, completa ambos campos."); return; }
             const bornNumber = parseInt(bornNumberInput.replace(/[,.]/g, ''));
-            if (isNaN(bornNumber) || bornNumber <= 0) {
-                alert("Por favor, introduce un número válido y positivo.");
-                return;
-            }
+            if (isNaN(bornNumber) || bornNumber <= 0) { alert("Por favor, introduce un número válido."); return; }
 
-            const generateButton = document.getElementById('generateButton');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            const interpretationArea = document.getElementById('interpretationArea');
-            const errorArea = document.getElementById('errorArea');
+            const generateButton = document.getElementById('generateButtonNumeric');
+            const loadingSpinner = document.getElementById('loadingSpinnerNumeric');
+            const interpretationArea = document.getElementById('interpretationAreaNumeric');
+            const errorArea = document.getElementById('errorAreaNumeric');
 
             generateButton.disabled = true;
             loadingSpinner.style.display = 'block';
             interpretationArea.style.display = 'none';
             errorArea.style.display = 'none';
 
-            // --- 1. Cálculo Local ---
             let seed = bornNumber > 2147483647 ? bornNumber % 2147483647 : bornNumber;
             if (seed === 0) seed = 1;
             const rng = mulberry32(seed);
             const numSpins = 1000000;
             const frequencies = {};
             for (let i = 0; i < 37; i++) { frequencies[i] = 0; }
-            for (let i = 0; i < numSpins; i++) {
-                frequencies[Math.floor(rng() * 37)]++;
-            }
+            for (let i = 0; i < numSpins; i++) { frequencies[Math.floor(rng() * 37)]++; }
             const sortedFrequencies = Object.entries(frequencies).sort(([, a], [, b]) => a - b);
             const leastFrequent = sortedFrequencies.slice(0, 3).map(item => item[0]);
             const mostFrequent = sortedFrequencies.slice(-3).reverse().map(item => item[0]);
 
-            // --- 2. Llamada al Intermediario (Función Serverless) ---
             try {
                 const response = await fetch('/.netlify/functions/getInterpretation', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        type: 'numeric', // Indicamos qué oráculo es
                         question: question,
                         mostFrequent: mostFrequent,
                         leastFrequent: leastFrequent
                     })
                 });
-
-                if (!response.ok) {
-                    throw new Error(`Error del servidor: ${response.statusText}`);
-                }
-
+                if (!response.ok) { throw new Error(`Error del servidor: ${response.statusText}`); }
                 const data = await response.json();
-                displayInterpretation(data.interpretation);
-
+                displayNumericInterpretation(data.interpretation);
             } catch (error) {
-                errorArea.textContent = `Ha ocurrido un error al contactar al oráculo. Por favor, inténtalo de nuevo más tarde. (Detalle: ${error.message})`;
+                errorArea.textContent = `Ha ocurrido un error. (Detalle: ${error.message})`;
                 errorArea.style.display = 'block';
             } finally {
                 generateButton.disabled = false;
                 loadingSpinner.style.display = 'none';
             }
         }
-
-        function displayInterpretation(fullResponse) {
+        function displayNumericInterpretation(fullResponse) {
             if (!fullResponse.includes('### SÍNTESIS ###') || !fullResponse.includes('### DESGLOSE ###') || !fullResponse.includes('### CONCLUSIÓN ###')) {
-                document.getElementById('errorArea').textContent = "La respuesta de la IA no tiene el formato esperado. No se puede mostrar.";
-                document.getElementById('errorArea').style.display = 'block';
+                document.getElementById('errorAreaNumeric').textContent = "La respuesta de la IA no tiene el formato esperado.";
+                document.getElementById('errorAreaNumeric').style.display = 'block';
                 return;
             }
-            
             const synthesisPart = fullResponse.split('### SÍNTESIS ###')[1].split('### DESGLOSE ###')[0].trim();
             const extendedPart = fullResponse.split('### DESGLOSE ###')[1].split('### CONCLUSIÓN ###')[0].trim();
             const conclusionPart = fullResponse.split('### CONCLUSIÓN ###')[1].trim();
             
             function formatWhatsappToHtml(text) { return text.replace(/\*([^\*]+)\*/g, '<b>$1</b>').replace(/_([^_]+)_/g, '<i>$1</i>').replace(/\n/g, '<br>'); }
 
-            document.getElementById('synthesisArea').innerHTML = `<p>${formatWhatsappToHtml(synthesisPart)}</p><br><h3>Conclusión Final:</h3><p><i>${formatWhatsappToHtml(conclusionPart)}</i></p>`;
-            document.getElementById('extendedArea').innerHTML = formatWhatsappToHtml(extendedPart);
+            document.getElementById('synthesisAreaNumeric').innerHTML = `<p>${formatWhatsappToHtml(synthesisPart)}</p><br><h3>Conclusión Final:</h3><p><i>${formatWhatsappToHtml(conclusionPart)}</i></p>`;
+            document.getElementById('extendedAreaNumeric').innerHTML = formatWhatsappToHtml(extendedPart);
             
-            document.getElementById('extendedArea').style.display = 'none';
-            document.getElementById('showExtendedButton').style.display = 'inline-block';
-            document.getElementById('interpretationArea').style.display = 'block';
+            document.getElementById('extendedAreaNumeric').style.display = 'none';
+            document.getElementById('showExtendedButtonNumeric').style.display = 'inline-block';
+            document.getElementById('interpretationAreaNumeric').style.display = 'block';
+        }
+        function showExtendedNumeric() {
+            document.getElementById('extendedAreaNumeric').style.display = 'block';
+            document.getElementById('showExtendedButtonNumeric').style.display = 'none';
         }
 
-        function showExtended() {
-            document.getElementById('extendedArea').style.display = 'block';
-            document.getElementById('showExtendedButton').style.display = 'none';
+        // --- LÓGICA DEL TAROT DE LA LEY DEL UNO ---
+        const ARCANOS = [ /* ... (pega aquí el array ARCANOS completo de tu código) ... */ ];
+        const RELACIONES_RA = { /* ... (pega aquí el objeto RELACIONES_RA completo) ... */ };
+        let mazo = [];
+        let cartasSacadas = [];
+        let preguntaTarot = "";
+        let conversacionTarot = [];
+
+        function iniciarTirada() {
+            renderizarMazoCompleto();
+            document.getElementById('mazo').style.display = 'flex';
+            preguntaTarot = prompt("¿Cuál es tu pregunta para el Tarot?");
+            if (preguntaTarot === null || preguntaTarot.trim() === "") {
+                preguntaTarot = "Pregunta general sobre mi situación actual.";
+            }
+            document.getElementById('pregunta-consultante').innerHTML = `<p><strong>Pregunta:</strong> ${preguntaTarot}</p>`;
+            mazo = [...ARCANOS];
+            cartasSacadas = [];
+            document.getElementById('btnBarajar').disabled = false;
+            document.getElementById('btnSacar').disabled = true;
+            document.getElementById('interpretationAreaTarot').style.display = 'none';
+            document.getElementById('mensajeTarot').textContent = 'Mazo listo. ¡Baraja!';
+            document.getElementById('conversacion').style.display = 'none';
+            conversacionTarot = []; // Reiniciar historial
+        }
+        function barajar() {
+            for (let i = mazo.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [mazo[i], mazo[j]] = [mazo[j], mazo[i]]; }
+            document.getElementById('btnSacar').disabled = false;
+            document.getElementById('mensajeTarot').textContent = 'Mazo barajado. Saca 3 cartas.';
+            renderizarMazoCompleto();
+        }
+        function sacarCartas() {
+            if (mazo.length < 3) return;
+            cartasSacadas = mazo.splice(0, 3);
+            document.getElementById('mazo').style.display = 'none';
+            renderizarCartasSacadas();
+            document.getElementById('loadingSpinnerTarot').style.display = 'block';
+            document.getElementById('btnSacar').disabled = true;
+            document.getElementById('interpretationAreaTarot').innerHTML = ''; // Limpiar interpretaciones previas
+            enviarPreguntaUsuario(true); // true para indicar que es la primera pregunta
+        }
+        function renderizarMazoCompleto() {
+            const contenedor = document.getElementById('mazo');
+            contenedor.innerHTML = '';
+            ARCANOS.forEach((carta) => {
+                const div = document.createElement('div');
+                div.className = 'carta boca-abajo';
+                div.innerHTML = `<span>${carta.nombre}</span>`;
+                contenedor.appendChild(div);
+            });
+        }
+        function renderizarCartasSacadas() {
+            const contenedor = document.getElementById('cartas-sacadas');
+            contenedor.innerHTML = '';
+            cartasSacadas.forEach(carta => {
+                const div = document.createElement('div');
+                div.className = 'carta';
+                let simbolo = carta.grupo === 'Mente' ? '🧠' : carta.grupo === 'Cuerpo' ? '🌱' : carta.grupo === 'Espíritu' ? '✨' : '♾️';
+                div.innerHTML = `<h4>${carta.nombre}</h4><p style="font-size: 2rem;">${simbolo}</p><small>${carta.grupo}</small>`;
+                contenedor.appendChild(div);
+            });
+        }
+        async function enviarPreguntaUsuario(esPrimeraPregunta = false) {
+            const loadingSpinner = document.getElementById('loadingSpinnerTarot');
+            const interpretationArea = document.getElementById('interpretationAreaTarot');
+            const conversacionDiv = document.getElementById('conversacion');
+            const userInput = document.getElementById('entrada-usuario');
+            
+            let prompt;
+            if (esPrimeraPregunta) {
+                const [mente, cuerpo, espiritu] = cartasSacadas;
+                prompt = `Eres una maga gitana experta en el Tarot, calida por la templanza de la edad, con un profundo conocimiento de la Ley del Uno (especialmente el Libro IV). Interpreta la siguiente tirada de tres cartas *en relación con la pregunta del consultante*. Sé mística, profunda, usa metáforas elaboradas, y haz referencias a los conceptos de la Ley del Uno (mente/cuerpo/espíritu, arquetipos, el Loco como integrador, etc.). Cita textualmente fragmentos relevantes del Libro IV de la Ley del Uno siempre que sea posible.
+
+Pregunta del consultante: ${preguntaTarot}
+
+Las cartas son:
+- Carta 1 (Mente): ${mente.nombre} - ${mente.descripcionRa}
+- Carta 2 (Cuerpo): ${cuerpo.nombre} - ${cuerpo.descripcionRa}
+- Carta 3 (Espíritu): ${espiritu.nombre} - ${espiritu.descripcionRa}
+
+Ofrece una interpretación que incluya:
+1.  **Análisis individual de cada carta:** Profundiza en su significado en el contexto de la Ley del Uno y la pregunta.
+2.  **Relaciones entre las cartas:** Explica cómo interactúan las energías (Mente -> Cuerpo, Cuerpo -> Espíritu, Espíritu -> Mente).
+3.  **El Rol del Loco:** Incluye una sección sobre cómo El Loco integra la tirada.
+4.  **Consejo o Reflexión Final:** Ofrece una conclusión que responda directamente a la pregunta.
+
+Responde en formato HTML usando <h3>, <h4>, <p>, <em> y <br>.`;
+                conversacionTarot.push({ role: "user", parts: [{ text: prompt }] });
+            } else {
+                const preguntaUsuario = userInput.value;
+                if (!preguntaUsuario || preguntaUsuario.trim() === "") { alert("Escribe tu pregunta."); return; }
+                interpretationArea.innerHTML += `<p><b>Tú:</b> ${preguntaUsuario}</p>`;
+                conversacionTarot.push({ role: "user", parts: [{ text: preguntaUsuario }] });
+                userInput.value = '';
+            }
+
+            loadingSpinner.style.display = 'block';
+
+            try {
+                const response = await fetch('/.netlify/functions/getInterpretation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'tarot', // Indicamos qué oráculo es
+                        conversation: conversacionTarot
+                    })
+                });
+                if (!response.ok) { throw new Error(`Error del servidor: ${await response.text()}`); }
+                const data = await response.json();
+                const interpretacion = data.interpretation;
+                conversacionTarot.push({ role: "model", parts: [{ text: interpretacion }] });
+                interpretationArea.innerHTML += interpretacion;
+                interpretationArea.style.display = 'block';
+                if (esPrimeraPregunta) { conversacionDiv.style.display = 'block'; }
+            } catch (error) {
+                interpretationArea.innerHTML += `<p class="error-message">Error: ${error.message}</p>`;
+                interpretationArea.style.display = 'block';
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
         }
     </script>
 </body>
